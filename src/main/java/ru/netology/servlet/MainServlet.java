@@ -10,6 +10,11 @@ import javax.servlet.http.HttpServletResponse;
 
 public class MainServlet extends HttpServlet {
     private PostController controller;
+    private final String GET = "GET";
+    private final String POST = "POST";
+    private final String DELETE = "DELETE";
+    private final String validPath = "/api/posts";
+    private final String validPathWithId = "/api/posts/\\d+";
 
     @Override
     public void init() {
@@ -24,25 +29,26 @@ public class MainServlet extends HttpServlet {
         try {
             final var path = req.getRequestURI();
             final var method = req.getMethod();
-            if (method.equals("GET") && path.equals("/api/posts")) {
+
+            if (method.equals(GET) && path.equals(validPath)) {
                 controller.all(resp);
                 return;
             }
-            if (method.equals("GET") && path.matches("/api/posts/\\d+")) {
+            if (method.equals(GET) && path.matches(validPathWithId)) {
                 final var id = Long.parseLong(path.substring(path.lastIndexOf("/")));
                 controller.getById(id, resp);
                 return;
             }
-            if (method.equals("POST") && path.equals("/api/posts")) {
+            if (method.equals(POST) && path.equals(validPath)) {
                 controller.save(req.getReader(), resp);
                 return;
             }
-            if (method.equals("DELETE") && path.matches("/api/posts/\\d+")) {
-                // easy way
+            if (method.equals(DELETE) && path.matches(validPathWithId)) {
                 final var id = Long.parseLong(path.substring(path.lastIndexOf("/")));
                 controller.removeById(id, resp);
                 return;
             }
+
             resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
         } catch (Exception e) {
             e.printStackTrace();
